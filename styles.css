@@ -826,10 +826,40 @@ clip-path: inset(0 0 0 12%);
   font-size: clamp(11px, calc(1.25vw + 7px), 19px);
   white-space: nowrap;
 }
-/* Community House */
+
 #community-house {
   display: inline-block;
+  width: 1em;
+  height: 1em;
   font-size: 1em;
+  vertical-align: middle;
+}
+
+.community-village {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% - 2px);
+  width: clamp(74px, 14vw, 130px);
+  max-width: 34vw;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgb(65 47 28 / 30%));
+  pointer-events: none;
+}
+
+#community.delivery-glow {
+  animation: community-delivery-glow 1.5s ease-out both;
+}
+
+@keyframes community-delivery-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 rgb(255 201 7 / 0));
+  }
+
+  25% {
+    filter: drop-shadow(0 0 10px rgb(255 201 7 / 75%));
+  }
 }
 
 /* Obstacles */
@@ -1142,6 +1172,11 @@ clip-path: inset(0 0 0 12%);
   #player {
     width: clamp(21.6px, 6.8vw, 28px);
     height: clamp(21.6px, 6.8vw, 28px);
+  }
+
+  .community-village {
+    width: clamp(72px, 23vw, 100px);
+    max-width: 32vw;
   }
 
   .obstacle {

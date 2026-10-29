@@ -479,6 +479,10 @@ function checkWaterDelivery() {
   if (!carryingWater) return;
 
   if (isTouching(player, document.getElementById("community-house"))) {
+    community.classList.remove("delivery-glow");
+    void community.offsetWidth;
+    community.classList.add("delivery-glow");
+
     deliveries++;
     deliveriesDisplay.textContent = deliveries;
 
