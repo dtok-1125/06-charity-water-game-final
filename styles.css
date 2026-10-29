@@ -240,6 +240,42 @@ clip-path: inset(0 0 0 12%);
   font-weight: bold;
 }
 
+.delivery-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.delivery-summary p {
+  margin: 0;
+}
+
+.delivery-collection {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.delivery-jerrycan {
+  display: block;
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  animation: delivery-pop-in 180ms ease-out both;
+}
+
+@keyframes delivery-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px) scale(0.75);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 #game-feedback {
   width: min(100%, 900px);
   margin: -12px auto 8px;
@@ -261,10 +297,35 @@ clip-path: inset(0 0 0 12%);
   max-width: 900px;
   height: 450px;
   margin: 0 auto;
-  background-color: #8db1cb;
+  background-color: #927d60;
+  background-image:
+    radial-gradient(ellipse at 16% 18%, rgb(224 203 161 / 42%), transparent 38%),
+    radial-gradient(ellipse at 78% 72%, rgb(64 48 34 / 20%), transparent 44%),
+    repeating-linear-gradient(128deg, rgb(53 42 31 / 5%) 0 1px, transparent 1px 13px),
+    linear-gradient(135deg, #a18a68, #887456);
   border: 4px solid #ffc907;
   border-radius: 12px;
   overflow: hidden;
+}
+
+#game-board::before {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-color: #b89a6d;
+  background-image:
+    repeating-linear-gradient(128deg, rgb(74 54 35 / 10%) 0 2px, transparent 2px 15px),
+    linear-gradient(90deg, #ad8c62, #c0a376 52%, #ad8c62);
+  clip-path: polygon(
+    4% 0%, 13% 0%, 20% 8%, 28% 15%, 36% 21%, 43% 27%, 48% 34%,
+    49% 40%, 45% 46%, 40% 51%, 39% 56%, 43% 61%, 50% 66%, 58% 71%,
+    66% 77%, 74% 83%, 83% 88%, 92% 92%, 100% 92%, 100% 100%,
+    91% 100%, 82% 96%, 73% 91%, 64% 86%, 56% 80%, 48% 75%, 40% 70%,
+    34% 64%, 29% 58%, 27% 53%, 29% 47%, 34% 42%, 38% 38%, 39% 34%,
+    35% 29%, 28% 24%, 21% 18%, 14% 12%, 8% 7%, 4% 7%
+  );
+  content: "";
+  pointer-events: none;
 }
 
 .game-controls {
@@ -536,7 +597,8 @@ clip-path: inset(0 0 0 12%);
 
 @media (prefers-reduced-motion: reduce) {
   .overlay-message,
-  .confetti-piece {
+  .confetti-piece,
+  .delivery-jerrycan {
     animation: none;
   }
 
@@ -635,9 +697,97 @@ clip-path: inset(0 0 0 12%);
   position: absolute;
   width: 55px;
   height: 55px;
-  background-color: #f5402c;
-  border: 3px solid #1a1a1a;
-  border-radius: 10px;
+  background: transparent;
+  border: 0;
+}
+
+.obstacle::before,
+.obstacle::after {
+  position: absolute;
+  content: "";
+  pointer-events: none;
+}
+
+.obstacle::before {
+  top: 14.5%;
+  left: 12.7%;
+  width: 72.7%;
+  height: 63.6%;
+  border: 1px solid #514d43;
+  border-radius: 38% 48% 34% 45%;
+  background:
+    radial-gradient(ellipse at 31% 21%, #d0c3a7 0 8%, transparent 10%),
+    linear-gradient(145deg, #a59a82 4%, #817968 48%, #5c594f 100%);
+  clip-path: polygon(18% 0, 68% 3%, 100% 30%, 94% 75%, 70% 100%, 24% 93%, 0 61%, 5% 25%);
+}
+
+.obstacle::after {
+  right: 12.7%;
+  bottom: 14.5%;
+  width: 29%;
+  height: 22%;
+  border: 1px solid #625d51;
+  border-radius: 58% 42% 60% 38%;
+  background: linear-gradient(145deg, #b2a68e, #706b5f 78%);
+}
+
+.obstacle-2::before,
+.obstacle-5::before,
+.obstacle-8::before {
+  top: 14.5%;
+  left: 7.3%;
+  width: 85.5%;
+  height: 69%;
+  border: 0;
+  border-radius: 0;
+  background:
+    radial-gradient(ellipse at 18% 66%, #566848 0 20%, transparent 22%),
+    radial-gradient(ellipse at 38% 42%, #78835b 0 23%, transparent 25%),
+    radial-gradient(ellipse at 61% 53%, #68764f 0 25%, transparent 27%),
+    radial-gradient(ellipse at 83% 68%, #536444 0 21%, transparent 23%),
+    linear-gradient(transparent 79%, #6e563c 79% 87%, transparent 87%);
+  clip-path: none;
+}
+
+.obstacle-2::after,
+.obstacle-5::after,
+.obstacle-8::after {
+  right: auto;
+  bottom: 18%;
+  left: 25.5%;
+  width: 51%;
+  height: 4%;
+  border: 0;
+  border-radius: 2px;
+  background-color: #756044;
+  transform: rotate(-12deg);
+}
+
+.obstacle-4::before,
+.obstacle-7::before {
+  top: auto;
+  bottom: 18%;
+  left: 11%;
+  width: 36%;
+  height: 27%;
+  border-radius: 58% 42% 60% 38%;
+  background: linear-gradient(145deg, #b0a68f, #706b60 78%);
+  box-shadow:
+    8px -6px 0 -2px #888477,
+    16px -2px 0 -4px #b6aa93;
+  clip-path: none;
+}
+
+.obstacle-4::after,
+.obstacle-7::after {
+  right: auto;
+  bottom: 20%;
+  left: 58%;
+  width: 15%;
+  height: 11%;
+  border: 0;
+  border-radius: 50%;
+  background: #d0c3a7;
 }
 
 
@@ -869,6 +1019,21 @@ clip-path: inset(0 0 0 12%);
     margin: 0;
   }
 
+  .delivery-summary {
+    max-width: 65%;
+  }
+
+  .delivery-collection {
+    max-width: 100%;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .delivery-jerrycan {
+    width: 24px;
+    height: 24px;
+  }
+
   #game-feedback {
     margin: 0 auto 6px;
     padding: 5px 9px;
@@ -917,7 +1082,6 @@ clip-path: inset(0 0 0 12%);
   .obstacle {
     width: clamp(32px, 9vw, 44px);
     height: clamp(32px, 9vw, 44px);
-    border-width: 2px;
   }
 }
 

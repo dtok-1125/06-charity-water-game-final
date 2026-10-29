@@ -195,8 +195,8 @@ const gameBoard = document.getElementById("game-board");
 let playerX = 85;
 let playerY = 80;
 
-// Movement speed (percentage per key press)
-const playerSpeed = 2;
+// Movement step as a percentage of the board on each move
+const playerSpeed = 2.4;
 const movementIntervalDelay = 160;
 
 const movementButtons = document.querySelectorAll(".arrow-key");
@@ -358,6 +358,7 @@ const waterSource = document.getElementById("water-source");
 const gameFeedback = document.getElementById("game-feedback");
 const community = document.getElementById("community");
 const deliveriesDisplay = document.getElementById("deliveries");
+const deliveryCollection = document.getElementById("delivery-collection");
 
 let deliveries = 0;
 
@@ -388,6 +389,7 @@ function resetGame() {
   deliveries = 0;
   carryingWater = false;
   obstaclesInContact.clear();
+  deliveryCollection.replaceChildren();
 
   obstacles.forEach(function (obstacle, index) {
     obstacle.hidden = index >= activeDifficulty.obstacleCount;
@@ -479,6 +481,15 @@ function checkWaterDelivery() {
   if (isTouching(player, document.getElementById("community-house"))) {
     deliveries++;
     deliveriesDisplay.textContent = deliveries;
+
+    if (deliveryCollection.children.length < 10) {
+      const jerrycan = document.createElement("img");
+      jerrycan.src = "img/water-can-transparent.png";
+      jerrycan.alt = "";
+      jerrycan.className = "delivery-jerrycan";
+      jerrycan.setAttribute("aria-hidden", "true");
+      deliveryCollection.appendChild(jerrycan);
+    }
 
     carryingWater = false;
 
