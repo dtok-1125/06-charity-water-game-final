@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Charity Water Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    
+<main>
+  <section id="welcome-screen">
+    
+
+<header>
+  <div class="logo-container" role="img" aria-label="charity: water logo">
+    <img
+      src="img/cw_logo_horizontal.png"
+      alt=""
+      class="brand-logo"
+    >
+    <img
+      src="img/cw_logo_horizontal.png"
+      alt=""
+      class="brand-logo logo-white"
+      aria-hidden="true"
+    >
+  </div>
+</header>
+
+
+
+    <h1>EVERY DROP COUNTS</h1>
+    <p class="water-drops">💧 💧 💧</p>
+
+    <p class="game-description">
+      Collect clean water and bring it safely home.
+    </p>
+
+    <h2>HOW TO PLAY</h2>
+
+    <p>
+      Use the arrow keys to collect water from the source
+      and deliver it safely to the community.
+    </p>
+
+    <p>
+      Avoid obstacles — hitting one costs you 5 seconds!
+    </p>
+
+    <button id="start-button" type="button">
+      START JOURNEY
+    </button>
+  </section>
+
+<!-- SCREEN 2: GAME BOARD -->
+<section id="game-screen" hidden>
+
+  <!-- Scoreboard -->
+  <div class="scoreboard">
+    <p>⏱️ TIME: <span id="timer">1:00</span></p>
+    <p>💛 DELIVERIES: <span id="deliveries">0</span></p>
+  </div>
+
+  <!-- Game Feedback -->
+  <p id="game-feedback" role="status" aria-live="polite">
+    Collect water to begin your journey!
+  </p>
+
+  <!-- Playing Field -->
+  <div id="game-board">
+
+    <div id="community">
+  <span id="community-house">🏠</span>
+  <span>COMMUNITY</span>
+</div>
+
+    <div id="player" aria-label="Player">
+      <img class="player-can" src="img/water-can-transparent.png" alt="">
+      <span class="player-water-indicator" aria-hidden="true">💧</span>
+    </div>
+
+    <div class="obstacle obstacle-1"></div>
+    <div class="obstacle obstacle-2"></div>
+    <div class="obstacle obstacle-3"></div>
+    <div class="obstacle obstacle-4"></div>
+    <div class="obstacle obstacle-5"></div>
+    <div class="obstacle obstacle-6"></div>
+    <div class="obstacle obstacle-7"></div>
+
+    <div id="water-source">
+      <img class="water-source-can" src="img/water-can-transparent.png" alt="">
+      WATER SOURCE
+    </div>
+
+  </div>
+
+  <!-- Player Instructions -->
+  <div class="game-controls">
+    <h2>🎮 PLAYER CONTROLS</h2>
+    <div class="arrow-keys" aria-label="Arrow keys: left, up, down, and right">
+      <button
+        class="arrow-key arrow-key-up"
+        type="button"
+        data-direction="up"
+        aria-label="Move up"
+      >↑</button>
+      <button
+        class="arrow-key arrow-key-left"
+        type="button"
+        data-direction="left"
+        aria-label="Move left"
+      >←</button>
+      <button
+        class="arrow-key arrow-key-down"
+        type="button"
+        data-direction="down"
+        aria-label="Move down"
+      >↓</button>
+      <button
+        class="arrow-key arrow-key-right"
+        type="button"
+        data-direction="right"
+        aria-label="Move right"
+      >→</button>
+    </div>
+    <p>Use the arrow keys or tap the buttons to move.</p>
+  </div>
+
+</section>
+
+</main>
+
+<div id="game-overlay" class="game-overlay" role="dialog" aria-modal="true" aria-labelledby="overlay-title" hidden>
+  <div class="overlay-message">
+    <h2 id="overlay-title"></h2>
+    <p id="overlay-message"></p>
+    <div id="results-details" hidden>
+      <p class="overlay-inspiration">
+        Every drop matters. Access to clean water helps communities thrive. 💛
+      </p>
+      <div class="overlay-actions">
+        <button id="restart-button" type="button" hidden>PLAY AGAIN</button>
+        <a
+          id="mission-link"
+          href="https://www.charitywater.org/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >OUR MISSION ↗</a>
+      </div>
+    </div>
+  </div>
+  <div id="confetti-layer" aria-hidden="true" hidden></div>
+</div>
+
+    <script src="script.js"></script>
+</body>
+</html>
