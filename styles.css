@@ -736,7 +736,8 @@ clip-path: inset(0 0 0 12%);
 @media (prefers-reduced-motion: reduce) {
   .overlay-message,
   .confetti-piece,
-  .delivery-jerrycan {
+  .delivery-jerrycan,
+  .water-source-image {
     animation: none;
   }
 
@@ -798,23 +799,49 @@ clip-path: inset(0 0 0 12%);
   top: clamp(12px, 2vw, 30px);
   left: clamp(12px, 2vw, 30px);
   z-index: 3;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: clamp(11px, calc(1.25vw + 7px), 19px);
+  width: clamp(84px, 12vw, 118px);
+  aspect-ratio: 3 / 2;
+}
+
+.water-source-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgb(65 47 28 / 30%));
+  animation: oasis-shimmer 3.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.location-label {
+  position: absolute;
+  bottom: calc(100% + 3px);
+  left: 50%;
+  padding: 1px 5px;
+  transform: translateX(-50%);
+  border-radius: 3px;
+  background-color: rgb(26 26 26 / 82%);
+  color: var(--white);
+  font-size: clamp(10px, 1.3vw, 13px);
+  font-weight: bold;
+  letter-spacing: 0.04em;
+  line-height: 1;
   white-space: nowrap;
 }
 
-.water-source-can {
-  width: clamp(22px, 4vw, 32px);
-  height: clamp(22px, 4vw, 32px);
-  flex: 0 0 auto;
-  filter:
-    drop-shadow(1px 0 0 var(--charcoal))
-    drop-shadow(-1px 0 0 var(--charcoal))
-    drop-shadow(0 1px 0 var(--charcoal))
-    drop-shadow(0 -1px 0 var(--charcoal));
-  object-fit: contain;
+.water-source-label {
+  z-index: 1;
+}
+
+@keyframes oasis-shimmer {
+  0%,
+  100% {
+    filter: drop-shadow(0 2px 4px rgb(65 47 28 / 30%)) brightness(1);
+  }
+
+  50% {
+    filter: drop-shadow(0 2px 6px rgb(255 201 7 / 48%)) brightness(1.04);
+  }
 }
 
 /* Community Delivery Zone */
@@ -835,16 +862,31 @@ clip-path: inset(0 0 0 12%);
   vertical-align: middle;
 }
 
-.community-village {
+.community-name-spacer {
+  visibility: hidden;
+}
+
+.community-art {
   position: absolute;
   right: 0;
   bottom: calc(100% - 2px);
   width: clamp(74px, 14vw, 130px);
   max-width: 34vw;
-  height: auto;
+  aspect-ratio: 3 / 2;
+  pointer-events: none;
+}
+
+.community-village {
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   filter: drop-shadow(0 2px 4px rgb(65 47 28 / 30%));
-  pointer-events: none;
+}
+
+.community-art .location-label {
+  top: calc(100% + 3px);
+  bottom: auto;
 }
 
 #community.delivery-glow {
@@ -1174,7 +1216,11 @@ clip-path: inset(0 0 0 12%);
     height: clamp(21.6px, 6.8vw, 28px);
   }
 
-  .community-village {
+  #water-source {
+    width: clamp(78px, 23vw, 96px);
+  }
+
+  .community-art {
     width: clamp(72px, 23vw, 100px);
     max-width: 32vw;
   }
