@@ -677,6 +677,16 @@ clip-path: inset(0 0 0 12%);
   left: 84%;
 }
 
+.obstacle-8 {
+  top: 77%;
+  left: 55%;
+}
+
+.obstacle-9 {
+  top: 8%;
+  left: 46%;
+}
+
 /* Make sure hidden screens stay hidden */
 #welcome-screen[hidden],
 #game-screen[hidden] {

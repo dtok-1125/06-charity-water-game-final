@@ -13,7 +13,14 @@ const overlayTitle = document.getElementById("overlay-title");
 const overlayMessage = document.getElementById("overlay-message");
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-let timeRemaining = 60;
+const difficultySettings = {
+  easy: { timeLimit: 90, obstacleCount: 4, collisionPenalty: 3 },
+  normal: { timeLimit: 60, obstacleCount: 7, collisionPenalty: 5 },
+  hard: { timeLimit: 45, obstacleCount: 9, collisionPenalty: 7 }
+};
+
+let activeDifficulty = null;
+let timeRemaining = difficultySettings.normal.timeLimit;
 let timerInterval = null;
 let obstacleTimeout = null;
 let confettiTimeout = null;
@@ -142,10 +149,15 @@ const welcomeScreen = document.getElementById("welcome-screen");
 const gameScreen = document.getElementById("game-screen");
 const difficultyOptions = document.querySelectorAll('input[name="difficulty"]');
 const difficultyInstruction = document.getElementById("difficulty-instruction");
+const collisionInstruction = document.getElementById("collision-instruction");
 
 difficultyOptions.forEach(function (option) {
   option.addEventListener("change", function () {
     difficultyInstruction.hidden = true;
+
+    const settings = difficultySettings[option.value];
+    collisionInstruction.textContent =
+      `Avoid obstacles — hitting one costs you ${settings.collisionPenalty} seconds!`;
   });
 });
 
@@ -165,6 +177,8 @@ startButton.addEventListener("click", function () {
     return;
   }
 
+  activeDifficulty = difficultySettings[selectedDifficulty.value];
+  resetGame();
   showGameScreen();
 
   console.log("Journey started!");
@@ -368,12 +382,16 @@ function resetGame() {
   obstacleTimeout = null;
   clearConfetti();
 
-  timeRemaining = 60;
+  timeRemaining = activeDifficulty.timeLimit;
   gamePaused = false;
   gameEnded = false;
   deliveries = 0;
   carryingWater = false;
   obstaclesInContact.clear();
+
+  obstacles.forEach(function (obstacle, index) {
+    obstacle.hidden = index >= activeDifficulty.obstacleCount;
+  });
 
   playerX = 85;
   playerY = 80;
@@ -480,6 +498,8 @@ function checkObstacleCollision() {
   const touchingObstacles = [];
 
   for (const obstacle of obstacles) {
+    if (obstacle.hidden) continue;
+
     if (isTouchingObstacle(player, obstacle)) {
       touchingObstacles.push(obstacle);
     }
@@ -498,14 +518,15 @@ function checkObstacleCollision() {
   if (newlyTouchedObstacle) {
     obstaclesInContact.add(newlyTouchedObstacle);
 
-    // Deduct five seconds without allowing the timer to go below zero.
-    timeRemaining = Math.max(0, timeRemaining - 5);
+    // Apply this difficulty's penalty without letting the timer go below zero.
+    timeRemaining = Math.max(0, timeRemaining - activeDifficulty.collisionPenalty);
     updateTimerDisplay();
 
     gamePaused = true;
     clearInterval(timerInterval);
     timerInterval = null;
-    const message = "🚧 Ouch! Obstacle hit! You lost 5 seconds!";
+    const message =
+      `🚧 Ouch! Obstacle hit! You lost ${activeDifficulty.collisionPenalty} seconds!`;
     gameFeedback.textContent = message;
     showOverlay("Obstacle!", message);
 
