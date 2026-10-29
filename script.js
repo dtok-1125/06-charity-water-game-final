@@ -140,6 +140,14 @@ function startTimer() {
 const startButton = document.getElementById("start-button");
 const welcomeScreen = document.getElementById("welcome-screen");
 const gameScreen = document.getElementById("game-screen");
+const difficultyOptions = document.querySelectorAll('input[name="difficulty"]');
+const difficultyInstruction = document.getElementById("difficulty-instruction");
+
+difficultyOptions.forEach(function (option) {
+  option.addEventListener("change", function () {
+    difficultyInstruction.hidden = true;
+  });
+});
 
 function showGameScreen() {
   welcomeScreen.hidden = true;
@@ -149,6 +157,14 @@ function showGameScreen() {
 
 // Listen for the player to click START JOURNEY
 startButton.addEventListener("click", function () {
+  const selectedDifficulty = document.querySelector('input[name="difficulty"]:checked');
+
+  if (!selectedDifficulty) {
+    difficultyInstruction.hidden = false;
+    difficultyOptions[0].focus();
+    return;
+  }
+
   showGameScreen();
 
   console.log("Journey started!");
