@@ -205,9 +205,50 @@ const designerSizeValue = document.getElementById("designer-size-value");
 const designerSave = document.getElementById("designer-save");
 const designerReset = document.getElementById("designer-reset");
 const designerStatus = document.getElementById("designer-status");
+const designerDelete = document.getElementById("designer-delete");
+const assetLibrary = [
+  { file: "desert-boulders.png", category: "rocks", obstacle: true },
+  { file: "sandstone-tower.png", category: "rocks", obstacle: true },
+  { file: "sandstone_rock_formation.png", category: "rocks", obstacle: true },
+  { file: "sandstone_ledge.png", category: "rocks", obstacle: true },
+  { file: "rock_and_grass.png", category: "rocks", obstacle: true },
+  { file: "rock_with_shrub.png", category: "rocks", obstacle: true },
+  { file: "flat_sandstone.png", category: "rocks", obstacle: true },
+  { file: "flat_gray_stone.png", category: "rocks", obstacle: true },
+  { file: "mini_grass_rocks.png", category: "rocks", obstacle: true },
+  { file: "small_grass_rock.png", category: "rocks", obstacle: true },
+  { file: "small_gray_rock.png", category: "rocks", obstacle: true },
+  { file: "small_red_rock.png", category: "rocks", obstacle: true },
+  { file: "mixed_pebbles.png", category: "rocks", obstacle: true },
+  { file: "scattered_pebbles.png", category: "rocks", obstacle: true },
+  { file: "blue_green_agave.png", category: "plants", obstacle: false },
+  { file: "dry_coral_shrub.png", category: "plants", obstacle: false },
+  { file: "feathery_grass.png", category: "plants", obstacle: false },
+  { file: "flowering_prickly_pear.png", category: "plants", obstacle: false },
+  { file: "golden_grass_clump.png", category: "plants", obstacle: false },
+  { file: "golden_wheat_grass.png", category: "plants", obstacle: false },
+  { file: "orange_flowering_bush.png", category: "plants", obstacle: false },
+  { file: "orange_flowering_shrub.png", category: "plants", obstacle: false },
+  { file: "round_barrel_cactus.png", category: "plants", obstacle: false },
+  { file: "sage_green_shrub.png", category: "plants", obstacle: false },
+  { file: "sage_yellow_bush.png", category: "plants", obstacle: false },
+  { file: "silver_sage.png", category: "plants", obstacle: false },
+  { file: "spiky_agave.png", category: "plants", obstacle: false },
+  { file: "tall_desert_grass.png", category: "plants", obstacle: false },
+  { file: "upright_grass.png", category: "plants", obstacle: false },
+  { file: "yellow_flowering_shrub.png", category: "plants", obstacle: false },
+  { file: "yellow_wildflowers.png", category: "plants", obstacle: false },
+  { file: "fallen_tree_trunk.png", category: "decor", obstacle: false },
+].map(function (asset) {
+  return {
+    ...asset,
+    src: `img/desert%20assets/${asset.file}`,
+    name: asset.file.replace(/\.png$/, "").replaceAll("_", " ").replaceAll("-", " ")
+  };
+});
 
 // Player starting position
-let playerX = 85;
+let playerX = 75;
 let playerY = 80;
 
 // Movement step as a percentage of the board on each move
@@ -382,9 +423,14 @@ let deliveries = 0;
 // ==============================
 
 // Find all obstacles
-const obstacles = document.querySelectorAll(".obstacle");
 const obstacleFormations = document.querySelectorAll(".obstacle-formation");
-const editableAssets = document.querySelectorAll(".scenery-item, .obstacle");
+const baseEditableAssets = Array.from(document.querySelectorAll(".scenery-item, .obstacle"));
+const sceneryLayer = document.querySelector(".scenery-layer");
+const libraryCategories = {
+  rocks: document.getElementById("library-rocks"),
+  plants: document.getElementById("library-plants"),
+  decor: document.getElementById("library-decor")
+};
 const layoutStorageKey = "every-drop-counts-layouts-v1";
 const layoutDifficultyNames = ["easy", "normal", "hard"];
 let defaultLayout = null;
@@ -393,6 +439,8 @@ let savedDesignerLayouts = {};
 let selectedAsset = null;
 let dragState = null;
 let designerLoadWarning = "";
+let nextAssetId = 1;
+let designerEditingDifficulty = "normal";
 
 // Track obstacles the player is still touching to prevent repeat penalties.
 const obstaclesInContact = new Set();
@@ -401,39 +449,185 @@ const obstaclesInContact = new Set();
 let carryingWater = false;
 
 function getAssetLayoutId(asset) {
-  const scenerySizes = ["scenery-tiny", "scenery-small", "scenery-medium", "scenery-large"];
-  const assetClass = Array.from(asset.classList).find(function (className) {
-    return (
-      (
-        className.startsWith("scenery-") &&
-        className !== "scenery-item" &&
-        !scenerySizes.includes(className)
-      ) ||
-      (className.startsWith("obstacle-") && className !== "obstacle-tall")
-    );
+  return asset.dataset.layoutId;
+}
+
+function getAssetSource(asset) {
+  const image = asset.matches("img") ? asset : asset.querySelector("img");
+  return image.getAttribute("src");
+}
+
+function getEditableAssets() {
+  return Array.from(gameBoard.querySelectorAll(".scenery-item, .obstacle"));
+}
+
+function copyLayout(layout) {
+  return layout.map(function (item) {
+    return { ...item };
+  });
+}
+
+function getAssetRecord(asset, difficulty = designerEditingDifficulty) {
+  const parent = asset.offsetParent;
+  if (!parent || parent.clientWidth === 0 || parent.clientHeight === 0) return null;
+
+  const width = (asset.offsetWidth / parent.clientWidth) * 100;
+  const height = (asset.offsetHeight / parent.clientHeight) * 100;
+  const record = designerLayouts[difficulty].find(function (item) {
+    return item.id === getAssetLayoutId(asset);
   });
 
-  if (!assetClass) {
-    throw new Error("Every editable asset needs a unique layout class.");
-  }
+  if (!record) return null;
 
-  return assetClass;
+  record.left = (asset.offsetLeft / parent.clientWidth) * 100;
+  record.top = (asset.offsetTop / parent.clientHeight) * 100;
+  record.width = width;
+  record.height = height;
+  return record;
 }
 
 function captureLayout() {
-  const layout = {};
+  const layout = designerLayouts[designerEditingDifficulty];
+  getEditableAssets().forEach(function (asset) {
+    if (asset.hidden || asset.offsetParent === null) return;
+    getAssetRecord(asset);
+  });
+  return copyLayout(layout);
+}
+
+function copyDefaultLayout(difficulty) {
+  return defaultLayout
+    .filter(function (item) {
+      if (item.type !== "obstacle") return true;
+      const asset = baseEditableAssets.find(function (entry) {
+        return getAssetLayoutId(entry) === item.id;
+      });
+      const formation = asset.closest(".obstacle-formation");
+      return formation.dataset.difficulties.split(" ").includes(difficulty);
+    })
+    .map(function (item) {
+      return { ...item };
+    });
+}
+
+function cleanLayout(layout, difficulty) {
+  if (Array.isArray(layout)) {
+    if (layout.length > 200) return null;
+
+    const seenIds = new Set();
+    const clean = [];
+    layout.forEach(function (item) {
+      if (
+        !item ||
+        typeof item.id !== "string" ||
+        item.id.length > 100 ||
+        seenIds.has(item.id)
+      ) {
+        return;
+      }
+
+      const source = assetLibrary.find(function (asset) {
+        return asset.src === item.src;
+      });
+      const base = defaultLayout.find(function (entry) {
+        return entry.id === item.id;
+      });
+      const isBaseAsset = Boolean(base);
+      if (!source || (isBaseAsset && source.src !== base.src)) return;
+
+      const type = source.obstacle ? "obstacle" : "scenery";
+      if (item.type !== type) return;
+      if (
+        !Number.isFinite(item.left) ||
+        !Number.isFinite(item.top) ||
+        !Number.isFinite(item.width)
+      ) {
+        return;
+      }
+
+      const width = Math.max(2, Math.min(30, item.width));
+      const originalHeight = base ? base.height : item.height;
+      const originalWidth = base ? base.width : item.width;
+      const height = Number.isFinite(item.height) && item.height > 0
+        ? item.height * (width / originalWidth)
+        : originalHeight * (width / originalWidth);
+
+      clean.push({
+        id: item.id,
+        src: source.src,
+        type,
+        left: Math.max(0, Math.min(100 - width, item.left)),
+        top: Math.max(0, Math.min(100 - height, item.top)),
+        width,
+        height
+      });
+      seenIds.add(item.id);
+    });
+    return clean;
+  }
+
+  if (!layout || typeof layout !== "object") return null;
+
+  // Convert layouts saved by Designer Mode before it supported added instances.
+  const migrated = [];
+  Object.keys(layout).forEach(function (id) {
+    const base = defaultLayout.find(function (item) {
+      return item.id === id;
+    });
+    const item = layout[id];
+    if (!base || !item) return;
+    if (base.type === "obstacle") {
+      const asset = baseEditableAssets.find(function (entry) {
+        return getAssetLayoutId(entry) === base.id;
+      });
+      if (!asset.closest(".obstacle-formation").dataset.difficulties.split(" ").includes(difficulty)) {
+        return;
+      }
+    }
+    migrated.push({ ...base, ...item });
+  });
+  return cleanLayout(migrated);
+}
+
+function initializeDesignerLayouts() {
+  if (designerLayouts) return;
+
+  baseEditableAssets.forEach(function (asset) {
+    if (!asset.dataset.layoutId) {
+      const assetClass = Array.from(asset.classList).find(function (className) {
+        return (
+          className.startsWith("scenery-") &&
+          className !== "scenery-item" &&
+          !["scenery-tiny", "scenery-small", "scenery-medium", "scenery-large"].includes(className)
+        ) ||
+          (className.startsWith("obstacle-") && className !== "obstacle-tall");
+      });
+      if (!assetClass) {
+        throw new Error("Every editable asset needs a stable layout identifier.");
+      }
+      asset.dataset.layoutId = assetClass;
+    }
+    asset.style.transform = "none";
+  });
+
   const hiddenStates = Array.from(obstacleFormations, function (formation) {
     return formation.hidden;
   });
   obstacleFormations.forEach(function (formation) {
     formation.hidden = false;
   });
+  baseEditableAssets.forEach(function (asset) {
+    asset.hidden = false;
+  });
 
-  editableAssets.forEach(function (asset) {
+  defaultLayout = baseEditableAssets.map(function (asset) {
     const parent = asset.offsetParent;
-    if (!parent || parent.clientWidth === 0 || parent.clientHeight === 0) return;
-
-    layout[getAssetLayoutId(asset)] = {
+    const source = getAssetSource(asset);
+    const type = asset.classList.contains("obstacle") ? "obstacle" : "scenery";
+    return {
+      id: getAssetLayoutId(asset),
+      src: source,
+      type,
       left: (asset.offsetLeft / parent.clientWidth) * 100,
       top: (asset.offsetTop / parent.clientHeight) * 100,
       width: (asset.offsetWidth / parent.clientWidth) * 100,
@@ -441,68 +635,7 @@ function captureLayout() {
     };
   });
 
-  obstacleFormations.forEach(function (formation, index) {
-    formation.hidden = hiddenStates[index];
-  });
-
-  return layout;
-}
-
-function copyLayout(layout) {
-  const copy = {};
-  Object.keys(layout).forEach(function (id) {
-    copy[id] = { ...layout[id] };
-  });
-  return copy;
-}
-
-function cleanLayout(layout) {
-  if (!layout || typeof layout !== "object") return null;
-
-  const clean = {};
-  editableAssets.forEach(function (asset) {
-    const id = getAssetLayoutId(asset);
-    const item = layout[id];
-
-    if (
-      !item ||
-      !Number.isFinite(item.left) ||
-      !Number.isFinite(item.top) ||
-      !Number.isFinite(item.width)
-    ) {
-      return;
-    }
-
-    const width = Math.max(2, Math.min(30, item.width));
-    const original = defaultLayout[id];
-    const height = original.height * (width / original.width);
-    clean[id] = {
-      left: Math.max(0, Math.min(100 - width, item.left)),
-      top: Math.max(0, Math.min(100 - height, item.top)),
-      width,
-      height
-    };
-  });
-
-  return Object.keys(clean).length === editableAssets.length ? clean : null;
-}
-
-function initializeDesignerLayouts() {
-  if (designerLayouts) return;
-
-  const hiddenStates = Array.from(obstacleFormations, function (formation) {
-    return formation.hidden;
-  });
-  obstacleFormations.forEach(function (formation) {
-    formation.hidden = false;
-  });
-
-  editableAssets.forEach(function (asset) {
-    asset.style.transform = "none";
-  });
-  defaultLayout = captureLayout();
-
-  editableAssets.forEach(function (asset) {
+  baseEditableAssets.forEach(function (asset) {
     asset.style.removeProperty("transform");
   });
   obstacleFormations.forEach(function (formation, index) {
@@ -510,9 +643,9 @@ function initializeDesignerLayouts() {
   });
 
   designerLayouts = {
-    easy: copyLayout(defaultLayout),
-    normal: copyLayout(defaultLayout),
-    hard: copyLayout(defaultLayout)
+    easy: copyDefaultLayout("easy"),
+    normal: copyDefaultLayout("normal"),
+    hard: copyDefaultLayout("hard")
   };
 
   try {
@@ -521,7 +654,7 @@ function initializeDesignerLayouts() {
 
     const parsedLayouts = JSON.parse(savedLayouts);
     layoutDifficultyNames.forEach(function (difficulty) {
-      const clean = cleanLayout(parsedLayouts[difficulty]);
+      const clean = cleanLayout(parsedLayouts[difficulty], difficulty);
       if (clean) {
         designerLayouts[difficulty] = clean;
         savedDesignerLayouts[difficulty] = copyLayout(clean);
@@ -534,26 +667,84 @@ function initializeDesignerLayouts() {
   }
 }
 
+function createAssetElement(item, difficulty = designerEditingDifficulty) {
+  const asset = item.type === "obstacle"
+    ? document.createElement("div")
+    : document.createElement("img");
+  const image = item.type === "obstacle"
+    ? document.createElement("img")
+    : asset;
+
+  asset.dataset.layoutId = item.id;
+  asset.classList.add(item.type === "obstacle" ? "obstacle" : "scenery-item");
+  asset.classList.add("designer-added-asset");
+  if (item.type === "obstacle") {
+    asset.classList.add("obstacle-library-item");
+    image.className = "obstacle-image";
+    image.alt = "";
+    image.setAttribute("aria-hidden", "true");
+    asset.appendChild(image);
+  } else {
+    asset.classList.add("scenery-library-item");
+    image.alt = "";
+    image.setAttribute("aria-hidden", "true");
+  }
+
+  image.src = item.src;
+  asset.style.left = `${item.left}%`;
+  asset.style.top = `${item.top}%`;
+  asset.style.width = `${item.width}%`;
+  asset.style.height = "auto";
+
+  const parent = item.type === "obstacle" ? gameBoard : sceneryLayer;
+  parent.appendChild(asset);
+  image.addEventListener("load", function () {
+    const record = designerLayouts[difficulty].find(function (entry) {
+      return entry.id === item.id;
+    });
+    if (record) {
+      getAssetRecord(asset, difficulty);
+      updateAssetLayout(asset, record, difficulty);
+    }
+  });
+  addDesignerAssetHandlers(asset);
+  return asset;
+}
+
 function applyLayout(difficulty) {
   if (!designerLayouts || !designerLayouts[difficulty]) return;
 
-  editableAssets.forEach(function (asset) {
-    const item = designerLayouts[difficulty][getAssetLayoutId(asset)];
-    if (!item) return;
+  gameBoard.querySelectorAll(".designer-added-asset").forEach(function (asset) {
+    asset.remove();
+  });
+  baseEditableAssets.forEach(function (asset) {
+    asset.hidden = true;
+  });
 
+  designerLayouts[difficulty].forEach(function (item) {
+    const baseAsset = baseEditableAssets.find(function (asset) {
+      return getAssetLayoutId(asset) === item.id;
+    });
+    const asset = baseAsset || createAssetElement(item, difficulty);
+    asset.hidden = false;
     asset.style.left = `${item.left}%`;
     asset.style.top = `${item.top}%`;
     asset.style.width = `${item.width}%`;
     asset.style.height = "auto";
   });
+  setObstacleVisibility(difficulty);
 }
 
 function setObstacleVisibility(difficulty) {
-  const obstacleLayout = difficultySettings[difficulty].obstacleLayout;
-
+  const layout = designerLayouts && designerLayouts[difficulty];
   obstacleFormations.forEach(function (formation) {
-    const availableDifficulties = formation.dataset.difficulties.split(" ");
-    formation.hidden = !availableDifficulties.includes(obstacleLayout);
+    const hasObstacle = layout && layout.some(function (item) {
+      const asset = baseEditableAssets.find(function (entry) {
+        return getAssetLayoutId(entry) === item.id;
+      });
+      return item.type === "obstacle" && asset && asset.closest(".obstacle-formation") === formation;
+    });
+    formation.hidden = !hasObstacle;
   });
 }
 
@@ -561,6 +752,7 @@ function setSelectedAsset(asset) {
   if (selectedAsset) selectedAsset.classList.remove("designer-selected");
 
   selectedAsset = asset;
+  designerDelete.disabled = !selectedAsset;
   if (!selectedAsset) {
     designerSize.disabled = true;
     designerSizeValue.textContent = "Select an asset";
@@ -568,13 +760,16 @@ function setSelectedAsset(asset) {
   }
 
   selectedAsset.classList.add("designer-selected");
-  const item = designerLayouts[designerDifficulty.value][getAssetLayoutId(selectedAsset)];
+  const item = designerLayouts[designerEditingDifficulty].find(function (entry) {
+    return entry.id === getAssetLayoutId(selectedAsset);
+  });
+  if (!item) return;
   designerSize.value = Math.max(2, Math.min(30, item.width));
   designerSize.disabled = false;
   designerSizeValue.textContent = `${Number(designerSize.value).toFixed(1)}% of board width`;
 }
 
-function updateAssetLayout(asset, nextLayout) {
+function updateAssetLayout(asset, nextLayout, difficulty = designerEditingDifficulty) {
   const parent = asset.offsetParent;
   if (!parent) return;
 
@@ -583,16 +778,17 @@ function updateAssetLayout(asset, nextLayout) {
   asset.style.height = "auto";
 
   const height = (asset.offsetHeight / parent.clientHeight) * 100;
-  const layout = {
-    left: Math.max(0, Math.min(100 - width, nextLayout.left)),
-    top: Math.max(0, Math.min(100 - height, nextLayout.top)),
-    width,
-    height
-  };
+  const item = designerLayouts[difficulty].find(function (entry) {
+    return entry.id === getAssetLayoutId(asset);
+  });
+  if (!item) return;
 
-  asset.style.left = `${layout.left}%`;
-  asset.style.top = `${layout.top}%`;
-  designerLayouts[designerDifficulty.value][getAssetLayoutId(asset)] = layout;
+  item.left = Math.max(0, Math.min(100 - width, nextLayout.left));
+  item.top = Math.max(0, Math.min(100 - height, nextLayout.top));
+  item.width = width;
+  item.height = height;
+  asset.style.left = `${item.left}%`;
+  asset.style.top = `${item.top}%`;
 
   if (asset === selectedAsset) {
     designerSize.value = width;
@@ -600,20 +796,127 @@ function updateAssetLayout(asset, nextLayout) {
   }
 }
 
+function addDesignerAssetHandlers(asset) {
+  asset.addEventListener("pointerdown", function (event) {
+    if (!designerMode || event.button > 0) return;
+
+    event.preventDefault();
+    setSelectedAsset(asset);
+    const parent = asset.offsetParent;
+    if (!parent) return;
+    const item = designerLayouts[designerEditingDifficulty].find(function (entry) {
+      return entry.id === getAssetLayoutId(asset);
+    });
+    dragState = {
+      asset,
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      left: item.left,
+      top: item.top,
+      parentWidth: parent.clientWidth,
+      parentHeight: parent.clientHeight
+    };
+    asset.setPointerCapture(event.pointerId);
+  });
+
+  asset.addEventListener("pointermove", function (event) {
+    if (!dragState || dragState.asset !== asset || dragState.pointerId !== event.pointerId) return;
+
+    const item = designerLayouts[designerEditingDifficulty].find(function (entry) {
+      return entry.id === getAssetLayoutId(asset);
+    });
+    updateAssetLayout(asset, {
+      left: dragState.left + ((event.clientX - dragState.startX) / dragState.parentWidth) * 100,
+      top: dragState.top + ((event.clientY - dragState.startY) / dragState.parentHeight) * 100,
+      width: item.width
+    });
+  });
+
+  function finishDragging(event) {
+    if (!dragState || dragState.asset !== asset || dragState.pointerId !== event.pointerId) return;
+    dragState = null;
+  }
+  asset.addEventListener("pointerup", finishDragging);
+  asset.addEventListener("pointercancel", finishDragging);
+}
+
 function saveDesignerLayouts() {
-  designerLayouts[designerDifficulty.value] = captureLayout();
-  savedDesignerLayouts[designerDifficulty.value] = copyLayout(
-    designerLayouts[designerDifficulty.value]
+  designerLayouts[designerEditingDifficulty] = captureLayout();
+  savedDesignerLayouts[designerEditingDifficulty] = copyLayout(
+    designerLayouts[designerEditingDifficulty]
   );
 
   try {
     localStorage.setItem(layoutStorageKey, JSON.stringify(savedDesignerLayouts));
     designerLoadWarning = "";
-    designerStatus.textContent = `${designerDifficulty.options[designerDifficulty.selectedIndex].text} layout saved on this device.`;
+    designerStatus.textContent = `${designerEditingDifficulty} layout saved on this device.`;
   } catch (error) {
     console.error("Could not save designer layouts.", error);
     designerStatus.textContent = "Layout could not be saved. Check browser storage availability and try again.";
   }
+}
+
+function addLibraryAsset(assetInfo) {
+  const id = `added-${Date.now()}-${nextAssetId++}`;
+  const item = {
+    id,
+    src: assetInfo.src,
+    type: assetInfo.obstacle ? "obstacle" : "scenery",
+    left: 42,
+    top: 42,
+    width: assetInfo.obstacle ? 14 : 9,
+    height: 0
+  };
+  designerLayouts[designerEditingDifficulty].push(item);
+  const asset = createAssetElement(item, designerEditingDifficulty);
+  setSelectedAsset(asset);
+  designerStatus.textContent = `Added ${assetInfo.name}. Drag it to position it.`;
+  const image = assetInfo.obstacle ? asset.querySelector("img") : asset;
+  if (image.complete) getAssetRecord(asset);
+}
+
+function deleteSelectedAsset() {
+  if (!selectedAsset) return;
+
+  const id = getAssetLayoutId(selectedAsset);
+  designerLayouts[designerEditingDifficulty] = designerLayouts[designerEditingDifficulty].filter(
+    function (item) {
+      return item.id !== id;
+    }
+  );
+  selectedAsset.classList.remove("designer-selected");
+  if (baseEditableAssets.includes(selectedAsset)) {
+    selectedAsset.hidden = true;
+  } else {
+    selectedAsset.remove();
+  }
+  selectedAsset = null;
+  designerDelete.disabled = true;
+  designerSize.disabled = true;
+  designerSizeValue.textContent = "Select an asset";
+  obstaclesInContact.clear();
+  setObstacleVisibility(designerEditingDifficulty);
+  designerStatus.textContent = "Selected asset removed from this difficulty layout.";
+}
+
+function initializeAssetLibrary() {
+  assetLibrary.forEach(function (asset) {
+    const button = document.createElement("button");
+    const thumbnail = document.createElement("img");
+    button.type = "button";
+    button.className = "asset-library-item";
+    button.setAttribute("aria-label", `Add ${asset.name}${asset.obstacle ? " obstacle" : " scenery"}`);
+    thumbnail.src = asset.src;
+    thumbnail.alt = "";
+    thumbnail.loading = "lazy";
+    button.appendChild(thumbnail);
+    button.addEventListener("click", function () {
+      if (!designerMode) return;
+      addLibraryAsset(asset);
+    });
+    libraryCategories[asset.category].appendChild(button);
+  });
 }
 
 function enterDesignerMode() {
@@ -625,6 +928,7 @@ function enterDesignerMode() {
   gamePaused = true;
   designerMode = true;
   designerDifficulty.value = activeDifficultyName;
+  designerEditingDifficulty = activeDifficultyName;
   applyLayout(designerDifficulty.value);
   setObstacleVisibility(designerDifficulty.value);
   gameScreen.classList.add("designer-mode");
@@ -642,7 +946,7 @@ function enterDesignerMode() {
 function exitDesignerMode() {
   if (!designerMode) return;
 
-  designerLayouts[designerDifficulty.value] = captureLayout();
+  designerLayouts[designerEditingDifficulty] = captureLayout();
   designerMode = false;
   gamePaused = false;
   gameBoard.classList.remove("designer-active");
@@ -659,64 +963,30 @@ function exitDesignerMode() {
   startTimer();
 }
 
-editableAssets.forEach(function (asset) {
-  asset.dataset.layoutId = getAssetLayoutId(asset);
-  asset.addEventListener("pointerdown", function (event) {
-    if (!designerMode || event.button > 0) return;
-
-    event.preventDefault();
-    setSelectedAsset(asset);
-
-    const parent = asset.offsetParent;
-    if (!parent) return;
-    const item = designerLayouts[designerDifficulty.value][getAssetLayoutId(asset)];
-    dragState = {
-      asset,
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      startY: event.clientY,
-      left: item.left,
-      top: item.top,
-      parentWidth: parent.clientWidth,
-      parentHeight: parent.clientHeight
-    };
-    asset.setPointerCapture(event.pointerId);
-  });
-
-  asset.addEventListener("pointermove", function (event) {
-    if (!dragState || dragState.asset !== asset || dragState.pointerId !== event.pointerId) return;
-
-    updateAssetLayout(asset, {
-      left: dragState.left + ((event.clientX - dragState.startX) / dragState.parentWidth) * 100,
-      top: dragState.top + ((event.clientY - dragState.startY) / dragState.parentHeight) * 100,
-      width: designerLayouts[designerDifficulty.value][getAssetLayoutId(asset)].width
-    });
-  });
-
-  function finishDragging(event) {
-    if (!dragState || dragState.asset !== asset || dragState.pointerId !== event.pointerId) return;
-    dragState = null;
-  }
-
-  asset.addEventListener("pointerup", finishDragging);
-  asset.addEventListener("pointercancel", finishDragging);
-});
+baseEditableAssets.forEach(addDesignerAssetHandlers);
+initializeAssetLibrary();
+designerDelete.addEventListener("click", deleteSelectedAsset);
 
 designerToggle.addEventListener("click", enterDesignerMode);
 designerExit.addEventListener("click", exitDesignerMode);
 
-designerDifficulty.addEventListener("change", function () {
-  if (selectedAsset) selectedAsset.classList.remove("designer-selected");
-  designerLayouts[designerDifficulty.value] = captureLayout();
+designerDifficulty.addEventListener("change", function (event) {
+  const nextDifficulty = event.currentTarget.value;
+  designerDifficulty.value = designerEditingDifficulty;
+  designerLayouts[designerEditingDifficulty] = captureLayout();
+  designerEditingDifficulty = nextDifficulty;
+  designerDifficulty.value = nextDifficulty;
   setSelectedAsset(null);
-  applyLayout(designerDifficulty.value);
-  setObstacleVisibility(designerDifficulty.value);
+  applyLayout(designerEditingDifficulty);
 });
 
 designerSize.addEventListener("input", function () {
   if (!selectedAsset) return;
 
-  const item = designerLayouts[designerDifficulty.value][getAssetLayoutId(selectedAsset)];
+  const item = designerLayouts[designerEditingDifficulty].find(function (entry) {
+    return entry.id === getAssetLayoutId(selectedAsset);
+  });
+  if (!item) return;
   updateAssetLayout(selectedAsset, {
     left: item.left,
     top: item.top,
@@ -727,17 +997,17 @@ designerSize.addEventListener("input", function () {
 designerSave.addEventListener("click", saveDesignerLayouts);
 
 designerReset.addEventListener("click", function () {
-  if (!window.confirm(`Reset the ${designerDifficulty.value} layout to its original positions?`)) return;
+  if (!window.confirm(`Reset the ${designerEditingDifficulty} layout to its original positions?`)) return;
 
-  designerLayouts[designerDifficulty.value] = copyLayout(defaultLayout);
-  delete savedDesignerLayouts[designerDifficulty.value];
+  designerLayouts[designerEditingDifficulty] = copyDefaultLayout(designerEditingDifficulty);
+  delete savedDesignerLayouts[designerEditingDifficulty];
   if (selectedAsset) setSelectedAsset(null);
-  applyLayout(designerDifficulty.value);
+  applyLayout(designerEditingDifficulty);
 
   try {
     localStorage.setItem(layoutStorageKey, JSON.stringify(savedDesignerLayouts));
     designerLoadWarning = "";
-    designerStatus.textContent = `${designerDifficulty.options[designerDifficulty.selectedIndex].text} layout restored to its original positions.`;
+    designerStatus.textContent = `${designerEditingDifficulty} layout restored to its original positions.`;
   } catch (error) {
     console.error("Could not save the reset designer layout.", error);
     designerStatus.textContent = "Layout reset for this session, but the reset could not be saved to browser storage.";
@@ -762,7 +1032,7 @@ function resetGame() {
 
   setObstacleVisibility(activeDifficultyName);
 
-  playerX = 85;
+  playerX = 75;
   playerY = 80;
   player.style.left = `${playerX}%`;
   player.style.top = `${playerY}%`;
@@ -845,7 +1115,7 @@ function checkWaterDelivery() {
   // Only deliver if carrying water
   if (!carryingWater) return;
 
-  if (isTouching(player, document.getElementById("community-house"))) {
+  if (isTouching(player, community.querySelector(".community-art"))) {
     community.classList.remove("delivery-glow");
     void community.offsetWidth;
     community.classList.add("delivery-glow");
@@ -879,8 +1149,9 @@ function checkObstacleCollision() {
 
   const touchingObstacles = [];
 
-  for (const obstacle of obstacles) {
-    if (obstacle.closest(".obstacle-formation").hidden) continue;
+  for (const obstacle of gameBoard.querySelectorAll(".obstacle")) {
+    const formation = obstacle.closest(".obstacle-formation");
+    if (obstacle.hidden || (formation && formation.hidden)) continue;
 
     if (isTouchingObstacle(player, obstacle)) {
       touchingObstacles.push(obstacle);

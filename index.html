@@ -113,8 +113,24 @@
 					<output id="designer-size-value" for="designer-size">Select an asset</output>
 					<button id="designer-save" type="button">Save Layout</button>
 					<button id="designer-reset" type="button">Reset Layout</button>
+					<button id="designer-delete" type="button" disabled>Delete Selected Asset</button>
 				</div>
-				<p class="designer-help">Drag rocks or scenery to move them. Select an asset to resize it.</p>
+				<p class="designer-help">Drag rocks or scenery to move them. Select an asset to resize or delete it.</p>
+				<section class="asset-library" aria-labelledby="asset-library-title">
+					<h2 id="asset-library-title">Asset Library</h2>
+					<div class="asset-library-category">
+						<h3>Rocks &amp; Boulders <span>Collidable</span></h3>
+						<div class="asset-library-items" id="library-rocks"></div>
+					</div>
+					<div class="asset-library-category">
+						<h3>Plants &amp; Shrubs <span>Scenery</span></h3>
+						<div class="asset-library-items" id="library-plants"></div>
+					</div>
+					<div class="asset-library-category">
+						<h3>Decorative Scenery <span>Non-collidable</span></h3>
+						<div class="asset-library-items" id="library-decor"></div>
+					</div>
+				</section>
 			</div>
 		</div>
 

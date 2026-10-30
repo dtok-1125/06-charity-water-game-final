@@ -387,6 +387,75 @@ clip-path: inset(0 0 0 12%);
   font-size: 13px;
 }
 
+.asset-library {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgb(0 51 102 / 22%);
+}
+
+.asset-library > h2 {
+  margin: 0 0 8px;
+  color: var(--navy);
+  font-size: 18px;
+}
+
+.asset-library-category + .asset-library-category {
+  margin-top: 8px;
+}
+
+.asset-library-category h3 {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 5px;
+  color: #4a3b2b;
+  font-size: 14px;
+}
+
+.asset-library-category h3 span {
+  color: #5b6146;
+  font-size: 11px;
+  font-weight: normal;
+}
+
+.asset-library-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+  gap: 6px;
+}
+
+.asset-library-item {
+  display: flex;
+  min-width: 0;
+  height: 58px;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border: 1px solid rgb(0 51 102 / 24%);
+  border-radius: 5px;
+  background: rgb(255 255 255 / 72%);
+  cursor: pointer;
+}
+
+.asset-library-item:hover,
+.asset-library-item:focus-visible {
+  border-color: var(--navy);
+  background: var(--white);
+}
+
+.asset-library-item:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.asset-library-item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
 #game-screen.designer-mode .arrow-key {
   cursor: not-allowed;
   opacity: 0.5;
@@ -882,7 +951,7 @@ clip-path: inset(0 0 0 12%);
   position: absolute;
   width: 42px;
   height: 42px;
-  left: 85%;
+  left: 75%;
   top: 80%;
   transform: translate(-50%, -50%);
   z-index: 4;
@@ -929,7 +998,7 @@ clip-path: inset(0 0 0 12%);
   top: clamp(12px, 2vw, 30px);
   left: clamp(12px, 2vw, 30px);
   z-index: 3;
-  width: clamp(84px, 12vw, 118px);
+  width: clamp(122px, 17.4vw, 171px);
   aspect-ratio: 3 / 2;
 }
 
@@ -960,6 +1029,7 @@ clip-path: inset(0 0 0 12%);
 }
 
 .water-source-label {
+  left: 47%;
   z-index: 1;
 }
 
@@ -999,9 +1069,9 @@ clip-path: inset(0 0 0 12%);
 .community-art {
   position: absolute;
   right: 0;
-  bottom: calc(100% - 2px);
-  width: clamp(74px, 14vw, 130px);
-  max-width: 34vw;
+  bottom: calc(100% - 10px);
+  width: clamp(100px, 18.9vw, 176px);
+  max-width: 42vw;
   aspect-ratio: 3 / 2;
   pointer-events: none;
 }
@@ -1059,6 +1129,15 @@ clip-path: inset(0 0 0 12%);
   pointer-events: none;
 }
 
+.obstacle-library-item {
+  height: auto;
+  aspect-ratio: auto;
+}
+
+.obstacle-library-item .obstacle-image {
+  height: auto;
+}
+
 #game-board.designer-active .scenery-item,
 #game-board.designer-active .obstacle {
   pointer-events: auto;
@@ -1097,7 +1176,7 @@ clip-path: inset(0 0 0 12%);
 
 .obstacle-east-main {
   top: 26%;
-  left: 70%;
+  left: 73%;
   width: clamp(92px, 16vw, 145px);
   aspect-ratio: 275 / 176;
 }
@@ -1366,12 +1445,12 @@ clip-path: inset(0 0 0 12%);
   }
 
   #water-source {
-    width: clamp(78px, 23vw, 96px);
+    width: clamp(113px, 33.35vw, 139px);
   }
 
   .community-art {
-    width: clamp(72px, 23vw, 100px);
-    max-width: 32vw;
+    width: clamp(97px, 31.05vw, 135px);
+    max-width: 42vw;
   }
 
   .obstacle {
