@@ -94,6 +94,30 @@
 			Collect water to begin your journey!
 		</p>
 
+		<div id="designer-toolbar" aria-label="Layout designer">
+			<button id="designer-toggle" type="button">🎨 Edit Layout</button>
+			<div id="designer-panel" hidden>
+				<div class="designer-heading">
+					<strong id="designer-status" role="status" aria-live="polite">Designer Mode is active — the game is paused.</strong>
+					<button id="designer-exit" type="button">Return to Game</button>
+				</div>
+				<div class="designer-options">
+					<label for="designer-difficulty">Layout difficulty</label>
+					<select id="designer-difficulty">
+						<option value="easy">Easy</option>
+						<option value="normal">Normal</option>
+						<option value="hard">Hard</option>
+					</select>
+					<label for="designer-size">Selected asset size</label>
+					<input id="designer-size" type="range" min="2" max="30" step="0.5" value="10" disabled>
+					<output id="designer-size-value" for="designer-size">Select an asset</output>
+					<button id="designer-save" type="button">Save Layout</button>
+					<button id="designer-reset" type="button">Reset Layout</button>
+				</div>
+				<p class="designer-help">Drag rocks or scenery to move them. Select an asset to resize it.</p>
+			</div>
+		</div>
+
 		<!-- Playing Field -->
 		<div id="game-board">
 			<div class="scenery-layer" aria-hidden="true">
@@ -136,15 +160,21 @@
 				<span class="player-water-indicator" aria-hidden="true">💧</span>
 			</div>
 
-			<div class="obstacle obstacle-1"><img class="obstacle-image" src="img/desert%20assets/fallen_tree_trunk.png" alt="" aria-hidden="true"></div>
-			<div class="obstacle obstacle-2"><img class="obstacle-image" src="img/desert%20assets/sandstone_rock_formation.png" alt="" aria-hidden="true"></div>
-			<div class="obstacle obstacle-3"><img class="obstacle-image" src="img/desert%20assets/sandstone_ledge.png" alt="" aria-hidden="true"></div>
-			<div class="obstacle obstacle-4"><img class="obstacle-image" src="img/desert%20assets/sandstone_rock_formation.png" alt="" aria-hidden="true"></div>
-			<div class="obstacle obstacle-5"><img class="obstacle-image" src="img/desert%20assets/sandstone_ledge.png" alt="" aria-hidden="true"></div>
-			<div class="obstacle obstacle-6"><img class="obstacle-image" src="img/desert%20assets/sandstone_rock_formation.png" alt="" aria-hidden="true"></div>
-			<div class="obstacle obstacle-7"><img class="obstacle-image" src="img/desert%20assets/sandstone_rock_formation.png" alt="" aria-hidden="true"></div>
-			<div class="obstacle obstacle-8"><img class="obstacle-image" src="img/desert%20assets/fallen_tree_trunk.png" alt="" aria-hidden="true"></div>
-			<div class="obstacle obstacle-9"><img class="obstacle-image" src="img/desert%20assets/sandstone_rock_formation.png" alt="" aria-hidden="true"></div>
+			<div class="obstacle-formation formation-west" data-difficulties="easy normal hard" aria-hidden="true">
+				<div class="obstacle obstacle-tall obstacle-west-main"><img class="obstacle-image" src="img/desert%20assets/sandstone-tower.png" alt=""></div>
+			</div>
+			<div class="obstacle-formation formation-center" data-difficulties="normal hard" aria-hidden="true">
+				<div class="obstacle obstacle-center-main"><img class="obstacle-image" src="img/desert%20assets/sandstone_rock_formation.png" alt=""></div>
+			</div>
+			<div class="obstacle-formation formation-east" data-difficulties="normal hard" aria-hidden="true">
+				<div class="obstacle obstacle-east-main"><img class="obstacle-image" src="img/desert%20assets/sandstone_ledge.png" alt=""></div>
+			</div>
+			<div class="obstacle-formation formation-north" data-difficulties="hard" aria-hidden="true">
+				<div class="obstacle obstacle-north-main"><img class="obstacle-image" src="img/desert%20assets/sandstone_rock_formation.png" alt=""></div>
+			</div>
+			<div class="obstacle-formation formation-south" data-difficulties="hard" aria-hidden="true">
+				<div class="obstacle obstacle-tall obstacle-south-main"><img class="obstacle-image" src="img/desert%20assets/sandstone-tower.png" alt=""></div>
+			</div>
 
 			<div id="water-source">
 				<img
