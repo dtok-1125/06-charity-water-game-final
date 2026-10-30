@@ -6,6 +6,7 @@ console.log('JavaScript file is linked correctly.');
 
 const timerDisplay = document.getElementById("timer");
 const milestoneCelebration = document.getElementById("milestone-celebration");
+const soundToggle = document.getElementById("sound-toggle");
 const restartButton = document.getElementById("restart-button");
 const footerContinueButton = document.getElementById("footer-continue-button");
 const donationLink = document.getElementById("donation-link");
@@ -15,6 +16,29 @@ const confettiLayer = document.getElementById("confetti-layer");
 const overlayTitle = document.getElementById("overlay-title");
 const overlayMessage = document.getElementById("overlay-message");
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+const soundEffects = {
+  waterCollected: createSoundEffect(
+    "img/Audio%20Files/freesound_community-splash-water-103984.mp3",
+    0.25
+  ),
+  waterDelivered: createSoundEffect(
+    "img/Audio%20Files/universfield-level-up-191997.mp3",
+    0.25
+  ),
+  milestone: createSoundEffect(
+    "img/Audio%20Files/dragon-studio-crowd-cheer-and-applause-406644.mp3",
+    0.25
+  ),
+  obstacleCollision: createSoundEffect(
+    "img/Audio%20Files/lesiakower-error-mistake-sound-effect-incorrect-answer-437420.mp3",
+    0.2
+  ),
+  gameEnd: createSoundEffect(
+    "img/Audio%20Files/universfield-achievement-unlock-243762.mp3",
+    0.25
+  )
+};
 
 const difficultySettings = {
   easy: { timeLimit: 90, obstacleLayout: "easy", collisionPenalty: 3 },
@@ -36,9 +60,56 @@ let obstacleTimeout = null;
 let confettiTimeout = null;
 let milestoneTimeout = null;
 let pendingMilestone = null;
+let soundEnabled = false;
+let lastCollisionSoundAt = 0;
 let gamePaused = false;
 let gameEnded = false;
 let designerMode = false;
+
+function createSoundEffect(source, volume) {
+  const audio = new Audio(source);
+  audio.preload = "none";
+  audio.volume = volume;
+  audio.addEventListener("error", function () {
+    console.warn(`Could not load sound effect: ${source}`);
+  }, { once: true });
+  return audio;
+}
+
+function playSoundEffect(soundName, preventOverlap = false) {
+  if (!soundEnabled) return;
+
+  const audio = soundEffects[soundName];
+  if (!audio || (preventOverlap && !audio.paused)) return;
+
+  if (soundName === "obstacleCollision") {
+    const now = Date.now();
+    if (now - lastCollisionSoundAt < 800) return;
+    lastCollisionSoundAt = now;
+  }
+
+  audio.currentTime = 0;
+  const playback = audio.play();
+  if (playback) {
+    playback.catch(function (error) {
+      console.warn(`Could not play sound effect: ${audio.src}`, error);
+    });
+  }
+}
+
+function stopSoundEffect(soundName) {
+  const audio = soundEffects[soundName];
+  if (!audio) return;
+
+  audio.pause();
+  audio.currentTime = 0;
+}
+
+soundToggle.addEventListener("click", function () {
+  soundEnabled = !soundEnabled;
+  soundToggle.setAttribute("aria-pressed", String(soundEnabled));
+  soundToggle.textContent = soundEnabled ? "🔊 Sound On" : "🔇 Sound Off";
+});
 
 function clearConfetti() {
   clearTimeout(confettiTimeout);
@@ -71,14 +142,17 @@ function showDeliveryMilestone(deliveryCount) {
     return item.deliveries === deliveryCount;
   });
 
-  if (!milestone) return;
+  if (!milestone) return false;
+
+  playSoundEffect("milestone");
 
   if (!gameOverlay.hidden) {
     pendingMilestone = milestone.message;
-    return;
+    return true;
   }
 
   displayMilestone(milestone.message);
+  return true;
 }
 
 function showPendingMilestone() {
@@ -90,60 +164,66 @@ function showPendingMilestone() {
 }
 
 function showConfetti() {
+  clearConfetti();
   if (prefersReducedMotion.matches) return;
 
-  clearConfetti();
   confettiLayer.hidden = false;
 
-  const colors = ["#FFC907", "#77A8BB", "#FFFFFF", "#003366"];
-  const pieceCount = 360;
+  const colors = ["#FFC907", "#FFFFFF", "#222222", "var(--blue)"];
+  const isMobile = window.matchMedia("(max-width: 600px)").matches;
+  const pieceCount = isMobile ? 68 : 100;
   const piecesPerSide = pieceCount / 2;
-  const boardBounds = gameBoard.getBoundingClientRect();
+  const cardBounds = document.querySelector(".overlay-message").getBoundingClientRect();
+  const layerBounds = confettiLayer.getBoundingClientRect();
+  const screenWidth = window.innerWidth;
+  const screenHeight = window.innerHeight;
+  const burstOriginY = cardBounds.top - layerBounds.top + cardBounds.height * 0.78;
 
   for (let index = 0; index < pieceCount; index++) {
     const piece = document.createElement("span");
     const startsOnLeft = index < piecesPerSide;
-    const edgeInset = Math.random() * boardBounds.width * 0.08;
-    const originX = startsOnLeft
-      ? boardBounds.left + edgeInset
-      : boardBounds.right - edgeInset;
-    const originY = boardBounds.bottom - Math.random() * 24;
-    const launchTargetX = window.innerWidth * (0.1 + Math.random() * 0.8);
-    const launchX = launchTargetX - originX;
-    const launchY = -boardBounds.height * (0.55 + Math.random() * 0.45);
-    const fallX = launchX + (Math.random() - 0.5) * window.innerWidth * 0.3;
-    const fallEndY = Math.max(
-      originY + 20,
-      Math.min(
-        window.innerHeight * 0.9,
-        boardBounds.bottom + window.innerHeight * (0.18 + Math.random() * 0.16)
-      )
-    );
-    const fallY = fallEndY - originY;
+    const side = startsOnLeft ? -1 : 1;
+    const fanAngle = (205 + Math.random() * 40) * Math.PI / 180;
+    const angle = startsOnLeft ? fanAngle : Math.PI - fanAngle;
+    const launchSpeed = Math.min(screenWidth, screenHeight) * (0.55 + Math.random() * 0.35);
+    const launchX = Math.cos(angle) * launchSpeed;
+    const launchY = Math.sin(angle) * launchSpeed;
+    const inwardDrift = -side * screenWidth * (0.04 + Math.random() * 0.1);
+    const driftX = launchX + inwardDrift;
+    const driftY = launchY * 0.62;
+    const flutterX = driftX + (Math.random() - 0.5) * screenWidth * 0.1;
+    const fallX = driftX - side * screenWidth * (0.03 + Math.random() * 0.1);
+    const fallY = screenHeight * (0.28 + Math.random() * 0.22);
     const spinDirection = Math.random() < 0.5 ? -1 : 1;
-    const spinDegrees = spinDirection * (360 + Math.random() * 180);
+    const spinDegrees = spinDirection * (360 + Math.random() * 720);
+    const originX = startsOnLeft
+      ? cardBounds.left - layerBounds.left + cardBounds.width * 0.12
+      : cardBounds.right - layerBounds.left - cardBounds.width * 0.12;
 
     piece.className = "confetti-piece";
-    piece.style.left = `${originX}px`;
-    piece.style.top = `${originY}px`;
+    piece.style.left = `${originX + (Math.random() - 0.5) * 16}px`;
+    piece.style.top = `${burstOriginY + (Math.random() - 0.5) * 18}px`;
     piece.style.setProperty("--confetti-color", colors[index % colors.length]);
+    piece.style.setProperty("--confetti-width", `${5 + Math.random() * 5}px`);
+    piece.style.setProperty("--confetti-height", `${8 + Math.random() * 8}px`);
     piece.style.setProperty("--confetti-launch-x", `${launchX}px`);
     piece.style.setProperty("--confetti-launch-y", `${launchY}px`);
-    piece.style.setProperty("--confetti-mid-x", `${(launchX + fallX) / 2}px`);
-    piece.style.setProperty("--confetti-mid-y", `${(launchY + fallY) / 2}px`);
+    piece.style.setProperty("--confetti-drift-x", `${driftX}px`);
+    piece.style.setProperty("--confetti-drift-y", `${driftY}px`);
+    piece.style.setProperty("--confetti-flutter-x", `${flutterX}px`);
+    piece.style.setProperty("--confetti-flutter-y", `${driftY + fallY * 0.35}px`);
     piece.style.setProperty("--confetti-fall-x", `${fallX}px`);
     piece.style.setProperty("--confetti-fall-y", `${fallY}px`);
-    piece.style.setProperty("--confetti-width", `${6 + Math.random() * 4}px`);
-    piece.style.setProperty("--confetti-height", `${10 + Math.random() * 8}px`);
     piece.style.setProperty("--confetti-spin", `${spinDegrees}deg`);
     piece.style.setProperty("--confetti-launch-spin", `${spinDegrees * 0.35}deg`);
-    piece.style.setProperty("--confetti-mid-spin", `${spinDegrees * 0.675}deg`);
-    piece.style.setProperty("--confetti-duration", `${7 + Math.random() * 3}s`);
-    piece.style.setProperty("--confetti-delay", `${Math.random() * 0.2}s`);
+    piece.style.setProperty("--confetti-drift-spin", `${spinDegrees * 0.7}deg`);
+    piece.style.setProperty("--confetti-flutter-spin", `${spinDegrees * 0.85}deg`);
+    piece.style.setProperty("--confetti-duration", `${5.2 + Math.random() * 1.4}s`);
+    piece.style.setProperty("--confetti-delay", `${Math.random() * 1.2}s`);
     confettiLayer.appendChild(piece);
   }
 
-  confettiTimeout = window.setTimeout(clearConfetti, 11000);
+  confettiTimeout = window.setTimeout(clearConfetti, 8000);
 }
 
 function updateTimerDisplay() {
@@ -181,6 +261,7 @@ function endGame() {
     true
   );
 
+  playSoundEffect("gameEnd", true);
   if (deliveries > 0) showConfetti();
 }
 
@@ -1515,6 +1596,7 @@ window.addEventListener("resize", function () {
 });
 
 function resetGame() {
+  stopSoundEffect("gameEnd");
   stopMovement();
   clearInterval(timerInterval);
   timerInterval = null;
@@ -1674,6 +1756,7 @@ function checkWaterCollection() {
     // Written feedback
     gameFeedback.textContent =
       "💧 Water collected! Deliver it to the community!";
+    playSoundEffect("waterCollected");
 
     console.log("Water collected!");
   }
@@ -1691,7 +1774,8 @@ function checkWaterDelivery() {
 
     deliveries++;
     deliveriesDisplay.textContent = deliveries;
-    showDeliveryMilestone(deliveries);
+    const reachedMilestone = showDeliveryMilestone(deliveries);
+    if (!reachedMilestone) playSoundEffect("waterDelivered");
 
     if (deliveryCollection.children.length < 10) {
       const jerrycan = document.createElement("img");
@@ -1762,6 +1846,7 @@ function checkObstacleCollision() {
     const message =
       `🚧 Ouch! Obstacle hit! You lost ${activeDifficulty.collisionPenalty} seconds!`;
     gameFeedback.textContent = message;
+    playSoundEffect("obstacleCollision", true);
     showOverlay("Obstacle!", message);
 
     obstacleTimeout = window.setTimeout(function () {

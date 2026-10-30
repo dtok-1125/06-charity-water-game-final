@@ -88,7 +88,15 @@
 	<section id="game-screen" hidden>
 		<!-- Scoreboard -->
 		<div class="scoreboard">
-			<p>⏱️ TIME: <span id="timer">1:00</span></p>
+			<div class="scoreboard-tools">
+				<p>⏱️ TIME: <span id="timer">1:00</span></p>
+				<button
+					id="sound-toggle"
+					class="sound-toggle"
+					type="button"
+					aria-pressed="false"
+				>🔇 Sound Off</button>
+			</div>
 			<div class="delivery-summary">
 				<p>💛 DELIVERIES: <span id="deliveries">0</span></p>
 				<div id="delivery-collection" class="delivery-collection" aria-hidden="true"></div>
@@ -149,6 +157,53 @@
 
 		<!-- Playing Field -->
 		<div id="game-board">
+			<svg
+				class="ground-details"
+				viewBox="0 0 900 450"
+				preserveAspectRatio="none"
+				aria-hidden="true"
+				focusable="false"
+			>
+				<g class="ground-shading">
+					<ellipse cx="92" cy="218" rx="72" ry="25" />
+					<ellipse cx="307" cy="119" rx="88" ry="21" />
+					<ellipse cx="552" cy="151" rx="94" ry="24" />
+					<ellipse cx="776" cy="224" rx="78" ry="22" />
+					<ellipse cx="292" cy="383" rx="82" ry="20" />
+				</g>
+
+				<g class="ground-stones">
+					<ellipse cx="70" cy="226" rx="5" ry="3" />
+					<ellipse cx="82" cy="231" rx="3" ry="2" />
+					<ellipse cx="292" cy="126" rx="4" ry="2.5" />
+					<ellipse cx="305" cy="131" rx="2.5" ry="1.8" />
+					<ellipse cx="570" cy="158" rx="5" ry="3" />
+					<ellipse cx="584" cy="164" rx="3" ry="2" />
+					<ellipse cx="788" cy="231" rx="4" ry="2.5" />
+					<ellipse cx="800" cy="236" rx="2.5" ry="1.8" />
+					<ellipse cx="278" cy="387" rx="4" ry="2.5" />
+					<ellipse cx="291" cy="392" rx="2.5" ry="1.8" />
+				</g>
+
+				<g class="ground-grass">
+					<path d="M 184 218 Q 180 208 183 202 M 184 218 Q 190 207 195 204 M 184 218 Q 176 213 174 207" />
+					<path d="M 475 137 Q 470 127 473 121 M 475 137 Q 481 126 486 123 M 475 137 Q 467 132 465 126" />
+					<path d="M 720 222 Q 716 212 719 206 M 720 222 Q 726 211 731 208 M 720 222 Q 712 217 710 211" />
+					<path d="M 352 388 Q 348 379 351 373 M 352 388 Q 358 378 363 375 M 352 388 Q 344 383 342 377" />
+				</g>
+
+				<g class="ground-sprouts">
+					<path d="M 260 195 Q 260 186 257 182 M 260 189 Q 264 183 267 182 M 260 193 Q 255 189 252 189" />
+					<path d="M 642 376 Q 642 368 639 364 M 642 371 Q 646 366 649 365 M 642 374 Q 637 371 634 371" />
+				</g>
+
+				<g class="ground-water">
+					<path d="M 270 177 Q 278 172 286 177 M 274 183 Q 281 179 288 183" />
+					<circle cx="266" cy="183" r="2" />
+					<circle cx="292" cy="175" r="1.8" />
+				</g>
+			</svg>
+
 			<div class="scenery-layer" aria-hidden="true">
 				<img class="scenery-item scenery-medium scenery-pear" src="img/desert%20assets/flowering_prickly_pear.png" alt="">
 				<img class="scenery-item scenery-small scenery-cactus" src="img/desert%20assets/round_barrel_cactus.png" alt="">
