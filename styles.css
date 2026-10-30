@@ -25,6 +25,9 @@ Secondary Colors:
   --peach: #FED8C1;
   --white: #FFFFFF;
   --terrain-shadow-strength: 34%;
+  --terrain-contact-shadow:
+    drop-shadow(0 12px 10px rgb(34 24 16 / 42%))
+    drop-shadow(0 3px 4px rgb(34 24 16 / 32%));
 }
 
 /* General Page Styling */
@@ -496,6 +499,10 @@ clip-path: inset(0 0 0 12%);
   margin: 0 auto;
   background-color: #927d60;
   background-image:
+    radial-gradient(ellipse at 38% 38%, rgb(79 53 34 / 14%), transparent 20%),
+    radial-gradient(ellipse at 61% 61%, rgb(241 215 174 / 18%), transparent 28%),
+    radial-gradient(ellipse at 92% 18%, rgb(83 57 37 / 12%), transparent 24%),
+    radial-gradient(ellipse at 7% 78%, rgb(238 210 166 / 17%), transparent 30%),
     radial-gradient(ellipse at 18% 57%, rgb(81 56 37 / 12%), transparent 25%),
     radial-gradient(ellipse at 68% 21%, rgb(239 213 170 / 16%), transparent 22%),
     radial-gradient(ellipse at 86% 54%, rgb(81 56 37 / 10%), transparent 20%),
@@ -505,13 +512,24 @@ clip-path: inset(0 0 0 12%);
     radial-gradient(ellipse at 24% 83%, rgb(92 65 43 / 14%), transparent 38%),
     radial-gradient(circle at 4px 7px, rgb(69 51 37 / 21%) 0 0.7px, transparent 1.25px),
     radial-gradient(circle at 13px 3px, rgb(250 225 188 / 25%) 0 0.8px, transparent 1.4px),
+    radial-gradient(circle at 5px 8px, rgb(68 48 32 / 17%) 0 0.9px, transparent 1.8px),
+    radial-gradient(circle at 12px 4px, rgb(248 222 183 / 20%) 0 0.7px, transparent 1.6px),
     repeating-linear-gradient(126deg, rgb(72 53 37 / 4%) 0 1px, transparent 1px 17px),
     repeating-linear-gradient(38deg, transparent 0 27px, rgb(80 58 39 / 5%) 27px 28px, transparent 28px 56px),
     linear-gradient(135deg, #ae916e, #8b755c 55%, #9a8061);
-  background-size: auto, auto, auto, auto, auto, auto, auto, 17px 13px, 19px 17px, auto, auto, auto;
-  background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 2px 3px, 8px 11px, 0 0, 0 0, 0 0;
+  background-size:
+    auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto,
+    17px 13px, 19px 17px, 29px 23px, 37px 31px, auto, auto, auto;
+  background-position:
+    0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0,
+    2px 3px, 8px 11px, 15px 9px, 4px 17px, 0 0, 0 0, 0 0;
   border: 4px solid #ffc907;
   border-radius: 12px;
+  box-shadow:
+    0 14px 28px rgb(22 16 11 / 38%),
+    0 4px 8px rgb(22 16 11 / 28%),
+    inset 0 2px 4px rgb(255 235 198 / 45%),
+    inset 0 0 34px rgb(55 38 25 / 30%);
   overflow: hidden;
 }
 
@@ -560,7 +578,9 @@ clip-path: inset(0 0 0 12%);
     repeating-linear-gradient(128deg, rgb(82 59 38 / 6%) 0 1px, transparent 1px 19px),
     radial-gradient(ellipse at 43% 46%, rgb(239 213 170 / 48%), transparent 56%),
     linear-gradient(90deg, #b99568, #cfb184 52%, #b4936a);
-  filter: drop-shadow(0 2px 3px rgb(61 43 29 / 34%));
+  filter:
+    drop-shadow(0 5px 6px rgb(61 43 29 / 38%))
+    drop-shadow(0 1px 1px rgb(61 43 29 / 28%));
   clip-path: polygon(
     0% 26%, 8% 25%, 16% 27%, 24% 30%, 32% 33%, 39% 36%, 45% 40%,
     49% 44%, 50% 48%, 48% 51%, 44% 54%, 42% 57%, 43% 60%, 47% 64%,
@@ -673,7 +693,7 @@ clip-path: inset(0 0 0 12%);
   height: auto;
   object-fit: contain;
   filter:
-    drop-shadow(0 4px 5px rgb(65 47 28 / var(--terrain-shadow-strength)))
+    var(--terrain-contact-shadow)
     drop-shadow(0 -1px 1px rgb(255 235 198 / 18%));
 }
 
@@ -1200,7 +1220,7 @@ clip-path: inset(0 0 0 12%);
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgb(65 47 28 / 30%));
+  filter: var(--terrain-contact-shadow);
   animation: oasis-shimmer 3.5s ease-in-out infinite;
   pointer-events: none;
 }
@@ -1230,11 +1250,14 @@ clip-path: inset(0 0 0 12%);
 @keyframes oasis-shimmer {
   0%,
   100% {
-    filter: drop-shadow(0 2px 4px rgb(65 47 28 / 30%)) brightness(1);
+    filter: var(--terrain-contact-shadow) brightness(1);
   }
 
   50% {
-    filter: drop-shadow(0 2px 6px rgb(255 201 7 / 48%)) brightness(1.04);
+    filter:
+      var(--terrain-contact-shadow)
+      drop-shadow(0 2px 6px rgb(255 201 7 / 48%))
+      brightness(1.04);
   }
 }
 
@@ -1297,7 +1320,7 @@ clip-path: inset(0 0 0 12%);
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgb(65 47 28 / 30%));
+  filter: var(--terrain-contact-shadow);
 }
 
 .community-art .location-label {
@@ -1341,7 +1364,7 @@ clip-path: inset(0 0 0 12%);
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 6px 6px rgb(54 38 26 / 38%));
+  filter: var(--terrain-contact-shadow);
   pointer-events: none;
 }
 
@@ -1588,6 +1611,7 @@ clip-path: inset(0 0 0 12%);
   }
 
   .scoreboard {
+    align-items: flex-start;
     margin-bottom: 6px;
     font-size: 18px;
   }
