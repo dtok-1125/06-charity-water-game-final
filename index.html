@@ -111,11 +111,18 @@
 					<label for="designer-size">Selected asset size</label>
 					<input id="designer-size" type="range" min="2" max="30" step="0.5" value="10" disabled>
 					<output id="designer-size-value" for="designer-size">Select an asset</output>
+					<label for="designer-font-size">Selected label font size</label>
+					<input id="designer-font-size" type="range" min="8" max="28" step="1" value="13" disabled>
+					<output id="designer-font-size-value" for="designer-font-size">Select a label</output>
+					<label class="designer-collision-control" for="designer-collision">
+						<input id="designer-collision" type="checkbox" disabled>
+						Enable Collision
+					</label>
 					<button id="designer-save" type="button">Save Layout</button>
 					<button id="designer-reset" type="button">Reset Layout</button>
 					<button id="designer-delete" type="button" disabled>Delete Selected Asset</button>
 				</div>
-				<p class="designer-help">Drag rocks or scenery to move them. Select an asset to resize or delete it.</p>
+				<p class="designer-help">Drag rocks, scenery, landmarks, labels, or the player to move them. Resize images, change label font size, or enable collision for individual scenery items.</p>
 				<section class="asset-library" aria-labelledby="asset-library-title">
 					<h2 id="asset-library-title">Asset Library</h2>
 					<div class="asset-library-category">
@@ -161,8 +168,8 @@
 			<div id="community">
 				<span id="community-house" aria-hidden="true"></span>
 				<span class="community-name-spacer" aria-hidden="true">COMMUNITY</span>
-				<div class="community-art" aria-hidden="true">
-					<span class="location-label">COMMUNITY</span>
+				<div class="community-art" data-layout-id="landmark-community" aria-hidden="true">
+					<span class="location-label" data-layout-id="label-community">COMMUNITY</span>
 					<img
 						class="community-village"
 						src="img/desert%20assets/desert%20village.png"
@@ -192,14 +199,14 @@
 				<div class="obstacle obstacle-tall obstacle-south-main"><img class="obstacle-image" src="img/desert%20assets/sandstone-tower.png" alt=""></div>
 			</div>
 
-			<div id="water-source">
+			<div id="water-source" data-layout-id="landmark-water-source">
 				<img
 					class="water-source-image"
 					src="img/desert%20assets/water-source.png"
 					alt=""
 					aria-hidden="true"
 				>
-				<span class="location-label water-source-label">WATER SOURCE</span>
+				<span class="location-label water-source-label" data-layout-id="label-water-source">WATER SOURCE</span>
 			</div>
 		</div>
 
