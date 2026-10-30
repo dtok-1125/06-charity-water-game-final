@@ -24,6 +24,7 @@ Secondary Colors:
   --charcoal: #1A1A1A;
   --peach: #FED8C1;
   --white: #FFFFFF;
+  --terrain-shadow-strength: 34%;
 }
 
 /* General Page Styling */
@@ -495,6 +496,9 @@ clip-path: inset(0 0 0 12%);
   margin: 0 auto;
   background-color: #927d60;
   background-image:
+    radial-gradient(ellipse at 18% 57%, rgb(81 56 37 / 12%), transparent 25%),
+    radial-gradient(ellipse at 68% 21%, rgb(239 213 170 / 16%), transparent 22%),
+    radial-gradient(ellipse at 86% 54%, rgb(81 56 37 / 10%), transparent 20%),
     radial-gradient(ellipse at 14% 20%, rgb(235 207 161 / 28%), transparent 35%),
     radial-gradient(ellipse at 76% 74%, rgb(81 56 37 / 19%), transparent 42%),
     radial-gradient(ellipse at 54% 17%, rgb(213 174 124 / 20%), transparent 33%),
@@ -504,8 +508,8 @@ clip-path: inset(0 0 0 12%);
     repeating-linear-gradient(126deg, rgb(72 53 37 / 4%) 0 1px, transparent 1px 17px),
     repeating-linear-gradient(38deg, transparent 0 27px, rgb(80 58 39 / 5%) 27px 28px, transparent 28px 56px),
     linear-gradient(135deg, #ae916e, #8b755c 55%, #9a8061);
-  background-size: auto, auto, auto, auto, 17px 13px, 19px 17px, auto, auto, auto;
-  background-position: 0 0, 0 0, 0 0, 0 0, 2px 3px, 8px 11px, 0 0, 0 0, 0 0;
+  background-size: auto, auto, auto, auto, auto, auto, auto, 17px 13px, 19px 17px, auto, auto, auto;
+  background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 2px 3px, 8px 11px, 0 0, 0 0, 0 0;
   border: 4px solid #ffc907;
   border-radius: 12px;
   overflow: hidden;
@@ -588,6 +592,18 @@ clip-path: inset(0 0 0 12%);
   pointer-events: none;
 }
 
+.ground-texture-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image: url("img/desert%20assets/dry-cracked-ground-texture.jpg");
+  background-position: center;
+  background-size: cover;
+  mix-blend-mode: multiply;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
 .ground-details {
   position: absolute;
   inset: 0;
@@ -600,7 +616,8 @@ clip-path: inset(0 0 0 12%);
 
 .ground-shading {
   fill: #5c432e;
-  opacity: 0.045;
+  opacity: 0.07;
+  filter: blur(8px);
 }
 
 .ground-shading ellipse:nth-child(even) {
@@ -655,7 +672,9 @@ clip-path: inset(0 0 0 12%);
   position: absolute;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 3px 3px rgb(65 47 28 / 28%));
+  filter:
+    drop-shadow(0 4px 5px rgb(65 47 28 / var(--terrain-shadow-strength)))
+    drop-shadow(0 -1px 1px rgb(255 235 198 / 18%));
 }
 
 .scenery-tiny {
