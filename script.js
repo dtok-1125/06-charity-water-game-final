@@ -6,6 +6,8 @@ console.log('JavaScript file is linked correctly.');
 
 const timerDisplay = document.getElementById("timer");
 const restartButton = document.getElementById("restart-button");
+const footerContinueButton = document.getElementById("footer-continue-button");
+const donationLink = document.getElementById("donation-link");
 const resultsDetails = document.getElementById("results-details");
 const gameOverlay = document.getElementById("game-overlay");
 const confettiLayer = document.getElementById("confetti-layer");
@@ -1725,4 +1727,9 @@ function checkObstacleCollision() {
 restartButton.addEventListener("click", function () {
   resetGame();
   showGameScreen();
+});
+
+footerContinueButton.addEventListener("click", function () {
+  gameOverlay.hidden = true;
+  donationLink.focus();
 });
