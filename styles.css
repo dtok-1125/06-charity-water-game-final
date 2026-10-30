@@ -40,8 +40,15 @@ body {
   margin: 0;
   background-color: var(--charcoal);
   color: var(--white);
-  font-family: Arial, sans-serif;
+  font-family: "Lato", Arial, sans-serif;
   overflow-y: auto;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
 }
 
 /* Welcome Screen */
@@ -56,7 +63,7 @@ body {
 }
 
 .brand-name {
-  font-family: Georgia, serif;
+  font-family: inherit;
   font-size: 28px;
   letter-spacing: 5px;
   margin-bottom: 60px;
@@ -69,7 +76,7 @@ body {
 
 .water-drops {
   font-size: 32px;
-  margin: 0 0 35px;
+  margin: 0 0 27px;
 }
 
 .game-description {
@@ -110,7 +117,7 @@ body {
 
 .difficulty-selector {
   width: min(100%, 620px);
-  margin: 8px auto 0;
+  margin: 16px auto 0;
   padding: 0;
   border: 0;
 }
@@ -493,6 +500,42 @@ clip-path: inset(0 0 0 12%);
   overflow: hidden;
 }
 
+.milestone-celebration {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 8;
+  width: min(90%, 32rem);
+  padding: clamp(14px, 3vw, 22px);
+  transform: translate(-50%, -50%);
+  border: 2px solid var(--yellow);
+  border-radius: 12px;
+  background-color: rgb(26 26 26 / 94%);
+  box-shadow: 0 0 24px rgb(255 201 7 / 30%), 0 0 36px rgb(46 157 247 / 16%);
+  color: var(--white);
+  font-size: clamp(20px, 4vw, 32px);
+  font-weight: 700;
+  line-height: 1.25;
+  pointer-events: none;
+  text-align: center;
+  text-wrap: balance;
+  animation: milestone-glow 1.2s ease-in-out infinite alternate;
+}
+
+.milestone-celebration[hidden] {
+  display: none;
+}
+
+@keyframes milestone-glow {
+  from {
+    box-shadow: 0 0 18px rgb(255 201 7 / 22%), 0 0 28px rgb(46 157 247 / 12%);
+  }
+
+  to {
+    box-shadow: 0 0 28px rgb(255 201 7 / 42%), 0 0 40px rgb(46 157 247 / 22%);
+  }
+}
+
 #game-board::before {
   position: absolute;
   inset: 0;
@@ -707,7 +750,7 @@ clip-path: inset(0 0 0 12%);
   border-radius: 7px;
   background-color: var(--charcoal);
   color: #FFCA0A;
-  font-family: Arial, sans-serif;
+  font-family: inherit;
   font-size: 24px;
   font-weight: bold;
   line-height: 1;
@@ -925,7 +968,7 @@ clip-path: inset(0 0 0 12%);
 
 @media (max-width: 480px) {
   .difficulty-selector {
-    margin-top: 4px;
+    margin-top: 8px;
   }
 
   .difficulty-selector legend {
@@ -966,6 +1009,7 @@ clip-path: inset(0 0 0 12%);
   .overlay-message,
   .confetti-piece,
   .delivery-jerrycan,
+  .milestone-celebration,
   .water-source-image {
     animation: none;
   }
@@ -1279,7 +1323,7 @@ clip-path: inset(0 0 0 12%);
 
   .water-drops {
     font-size: 25px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
 
   .game-description {
@@ -1321,7 +1365,7 @@ clip-path: inset(0 0 0 12%);
 
   .water-drops {
     font-size: 22px;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
   }
 
   .game-description {
@@ -1340,7 +1384,7 @@ clip-path: inset(0 0 0 12%);
   }
 
   .difficulty-selector {
-    margin-top: 2px;
+    margin-top: 4px;
   }
 
   .difficulty-selector legend {
@@ -1544,7 +1588,7 @@ clip-path: inset(0 0 0 12%);
   }
 
   .difficulty-selector {
-    margin-top: 4px;
+    margin-top: 12px;
   }
 
   .difficulty-selector legend {
@@ -1579,8 +1623,11 @@ clip-path: inset(0 0 0 12%);
 
 .ripple-footer h2 {
   margin: 0;
+  font-family: "Lora", Georgia, serif;
   font-size: clamp(30px, 5vw, 48px);
+  font-weight: 700;
   line-height: 1.15;
+  text-wrap: balance;
 }
 
 .ripple-footer-message {

@@ -4,6 +4,12 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 		<title>Charity Water Game</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Lato:wght@400;600;700;800&family=Lora:wght@700&display=swap"
+			rel="stylesheet"
+		>
 		<link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -208,6 +214,15 @@
 				>
 				<span class="location-label water-source-label" data-layout-id="label-water-source">WATER SOURCE</span>
 			</div>
+
+			<div
+				id="milestone-celebration"
+				class="milestone-celebration"
+				role="status"
+				aria-live="polite"
+				aria-atomic="true"
+				hidden
+			></div>
 		</div>
 
 		<!-- Player Instructions -->
@@ -260,7 +275,7 @@
 				target="_blank"
 				rel="noopener noreferrer"
 			>
-				<strong>Start a Ripple 💛</strong>
+				<strong>Start a Ripple <span class="ripple-footer-heart" aria-hidden="true">💙</span></strong>
 				<span>Make a donation</span>
 			</a>
 			<a

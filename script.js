@@ -5,6 +5,7 @@ console.log('JavaScript file is linked correctly.');
 // ==============================
 
 const timerDisplay = document.getElementById("timer");
+const milestoneCelebration = document.getElementById("milestone-celebration");
 const restartButton = document.getElementById("restart-button");
 const footerContinueButton = document.getElementById("footer-continue-button");
 const donationLink = document.getElementById("donation-link");
@@ -21,12 +22,20 @@ const difficultySettings = {
   hard: { timeLimit: 45, obstacleLayout: "hard", collisionPenalty: 7 }
 };
 
+const deliveryMilestones = [
+  { deliveries: 1, message: "💧 Every Drop Matters!" },
+  { deliveries: 3, message: "🌊 You're Making Waves!" },
+  { deliveries: 5, message: "💛 Community Water Champion!" }
+];
+
 let activeDifficulty = null;
 let activeDifficultyName = "normal";
 let timeRemaining = difficultySettings.normal.timeLimit;
 let timerInterval = null;
 let obstacleTimeout = null;
 let confettiTimeout = null;
+let milestoneTimeout = null;
+let pendingMilestone = null;
 let gamePaused = false;
 let gameEnded = false;
 let designerMode = false;
@@ -36,6 +45,48 @@ function clearConfetti() {
   confettiTimeout = null;
   confettiLayer.replaceChildren();
   confettiLayer.hidden = true;
+}
+
+function clearMilestone() {
+  pendingMilestone = null;
+  hideMilestone();
+}
+
+function hideMilestone() {
+  clearTimeout(milestoneTimeout);
+  milestoneTimeout = null;
+  milestoneCelebration.hidden = true;
+  milestoneCelebration.textContent = "";
+}
+
+function displayMilestone(message) {
+  clearTimeout(milestoneTimeout);
+  milestoneCelebration.textContent = message;
+  milestoneCelebration.hidden = false;
+  milestoneTimeout = window.setTimeout(hideMilestone, 2000);
+}
+
+function showDeliveryMilestone(deliveryCount) {
+  const milestone = deliveryMilestones.find(function (item) {
+    return item.deliveries === deliveryCount;
+  });
+
+  if (!milestone) return;
+
+  if (!gameOverlay.hidden) {
+    pendingMilestone = milestone.message;
+    return;
+  }
+
+  displayMilestone(milestone.message);
+}
+
+function showPendingMilestone() {
+  if (!pendingMilestone || gameEnded) return;
+
+  const message = pendingMilestone;
+  pendingMilestone = null;
+  displayMilestone(message);
 }
 
 function showConfetti() {
@@ -102,6 +153,12 @@ function updateTimerDisplay() {
 }
 
 function showOverlay(title, message, showRestartButton = false) {
+  if (showRestartButton) {
+    clearMilestone();
+  } else if (!milestoneCelebration.hidden) {
+    pendingMilestone = milestoneCelebration.textContent;
+    hideMilestone();
+  }
   stopMovement();
   overlayTitle.textContent = title;
   overlayMessage.textContent = message;
@@ -1464,6 +1521,7 @@ function resetGame() {
   clearTimeout(obstacleTimeout);
   obstacleTimeout = null;
   clearConfetti();
+  clearMilestone();
 
   timeRemaining = activeDifficulty.timeLimit;
   gamePaused = false;
@@ -1633,6 +1691,7 @@ function checkWaterDelivery() {
 
     deliveries++;
     deliveriesDisplay.textContent = deliveries;
+    showDeliveryMilestone(deliveries);
 
     if (deliveryCollection.children.length < 10) {
       const jerrycan = document.createElement("img");
@@ -1714,6 +1773,7 @@ function checkObstacleCollision() {
       } else {
         gamePaused = false;
         startTimer();
+        showPendingMilestone();
       }
     }, 1500);
 
