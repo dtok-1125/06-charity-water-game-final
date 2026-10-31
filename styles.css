@@ -1449,6 +1449,8 @@ clip-path: inset(0 0 0 12%);
   }
 
   #welcome-screen {
+    min-height: 100svh;
+    min-height: 100dvh;
     padding: 18px 16px;
     justify-content: center;
   }
@@ -1591,6 +1593,11 @@ clip-path: inset(0 0 0 12%);
 }
 
 @media (max-width: 600px) {
+  #game-board:not(.designer-active) .location-label[data-layout-id="label-community"] {
+    left: 85.35% !important;
+    transform: translateX(-50%) !important;
+  }
+
   #game-screen {
     display: flex;
     flex-direction: column;
