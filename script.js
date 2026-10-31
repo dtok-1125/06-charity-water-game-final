@@ -718,18 +718,7 @@ function captureLayout() {
 }
 
 function copyDefaultLayout(difficulty) {
-  return defaultLayout
-    .filter(function (item) {
-      if (item.type !== "obstacle") return true;
-      const asset = baseEditableAssets.find(function (entry) {
-        return getAssetLayoutId(entry) === item.id;
-      });
-      const formation = asset.closest(".obstacle-formation");
-      return formation.dataset.difficulties.split(" ").includes(difficulty);
-    })
-    .map(function (item) {
-      return { ...item };
-    });
+  return copyLayout(window.everyDropCountsDefaultLayouts[difficulty]);
 }
 
 function cleanLayout(layout, difficulty) {
